@@ -1,4 +1,12 @@
 import pandas as pd
+import re
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.ensemble import RandomForestClassifier
+
 
 # Load the dataset
 df = pd.read_csv("PCOS_infertility.csv")
@@ -116,5 +124,6 @@ for col in features:
 
     plt.savefig(f"{safe_name}_hist.png")
     plt.close()
+
 
 
