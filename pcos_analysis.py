@@ -7,105 +7,84 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
 
-
-# Load the dataset
+# -----------------------
+# Load and clean dataset
+# -----------------------
 df = pd.read_csv("PCOS_infertility.csv")
 
-# Quick look at the first 5 rows
+# Strip leading/trailing spaces from column names
+df.columns = df.columns.str.strip()
+
+# Quick look at first 5 rows
 print(df.head())
 
-# Check column types and missing values
+# Column info and missing values
 print(df.info())
 print(df.isnull().sum())
 
-# Summary statistics for numeric columns
+# Summary statistics
 print(df.describe())
-
 
 # Drop unnecessary columns
 df = df.drop(columns=['Sl. No', 'Patient File No.'], errors='ignore')
 
-# Convert AMH(ng/mL) to numeric (it was a string)
+# Convert AMH to numeric and fill missing
 df['AMH(ng/mL)'] = pd.to_numeric(df['AMH(ng/mL)'], errors='coerce')
-
-# Fill any missing AMH values with median
 df['AMH(ng/mL)'] = df['AMH(ng/mL)'].fillna(df['AMH(ng/mL)'].median())
 
-# Check the cleaned data
+# Check cleaned data
 print(df.info())
 print(df.head())
 
-
-# Features = all columns except the target
+# -----------------------
+# Features and target
+# -----------------------
 X = df.drop('PCOS (Y/N)', axis=1)
-
-# Target = PCOS (Y/N)
 y = df['PCOS (Y/N)']
 
-# Check features and target
 print("Features (X):")
 print(X.head())
 print("\nTarget distribution:")
 print(y.value_counts())
 
+# -----------------------
+# Train-test split and scaling
+# -----------------------
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-
-# Split dataset into training and test sets (80/20 split)
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
-
-# Scale features for Logistic Regression
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-
-
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix
-
-# Train Logistic Regression
+# -----------------------
+# Logistic Regression
+# -----------------------
 lr = LogisticRegression(max_iter=2000)
 lr.fit(X_train_scaled, y_train)
 y_pred_lr = lr.predict(X_test_scaled)
 
-# Results
 print("Logistic Regression Results")
 print(classification_report(y_test, y_pred_lr))
 print(confusion_matrix(y_test, y_pred_lr))
 
-
-
-from sklearn.ensemble import RandomForestClassifier
-
-# Train Random Forest
+# -----------------------
+# Random Forest
+# -----------------------
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)
 y_pred_rf = rf.predict(X_test)
 
-# Results
 print("Random Forest Results")
 print(classification_report(y_test, y_pred_rf))
 print(confusion_matrix(y_test, y_pred_rf))
 
-
-
-# Show which features are most important
-import pandas as pd
-
-importance = pd.Series(rf.feature_importances_, index=X.columns)
-importance = importance.sort_values(ascending=False)
-
+# Feature importance
+importance = pd.Series(rf.feature_importances_, index=X.columns).sort_values(ascending=False)
 print("Feature Importance:")
 print(importance)
 
-
 # -----------------------
-# Exploratory Data Analysis
+# Exploratory Data Analysis (histograms)
 # -----------------------
 
 hist_features = ['PCOS (Y/N)', 'I   beta-HCG(mIU/mL)', 'II    beta-HCG(mIU/mL)', 'AMH(ng/mL)']
@@ -122,7 +101,3 @@ for col in hist_features:
         plt.close()
     else:
         print(f"Column {col} not found in DataFrame, skipping plot.")
-
-
-
-
