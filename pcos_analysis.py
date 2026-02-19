@@ -108,22 +108,21 @@ print(importance)
 # Exploratory Data Analysis
 # -----------------------
 
-import re
-import matplotlib.pyplot as plt
+hist_features = ['PCOS (Y/N)', 'I   beta-HCG(mIU/mL)', 'II    beta-HCG(mIU/mL)', 'AMH(ng/mL)']
 
-features = ["Age", "BMI", "Insulin", "Testosterone"]
+for col in hist_features:
+    if col in df.columns:
+        plt.figure()
+        plt.hist(df[col], bins=20)
+        plt.xlabel(col)
+        plt.ylabel("Number of patients")
+        plt.title(f"Distribution of {col}")
+        safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', col)
+        plt.savefig(f"{safe_name}_hist.png")
+        plt.close()
+    else:
+        print(f"Column {col} not found in DataFrame, skipping plot.")
 
-for col in features:
-    plt.figure()
-    plt.hist(df[col], bins=20)
-    plt.xlabel(col)
-    plt.ylabel("Number of patients")
-    plt.title(f"Distribution of {col}")
-
-    safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', col)  # clean filename
-
-    plt.savefig(f"{safe_name}_hist.png")
-    plt.close()
 
 
 
